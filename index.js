@@ -5,6 +5,7 @@ const port = 4000
 const { User } = require("./models/User")
 const config = require('./config/key')
 const cookieParser = require('cookie-parser')
+const { auth } = require('./middleware/auth')
 
 //application/x-www-form-urlencoded
 app.use(express.urlencoded({extended: true}))
@@ -24,7 +25,7 @@ app.get('/', (req, res) => {
   res.send('Hello World Node.js! Welcome back!')
 })
 
-app.post('/register', (req, res) => {
+app.post('api/user/register', (req, res) => {
   const user = new User(req.body)
 
   user.save((err, userInfo) => {
@@ -57,6 +58,19 @@ app.post('/login', (req, res) => {
           .json({ loginSuccess: true, userId: user._id })
       })
     })
+  })
+})
+
+app.get('api/users/auth', auth, (req, res) => {
+  res.status(200).json({
+    _id: req.user._id,
+    isAdmin: req.user.role === 0 ? false : true,
+    isAuth: true,
+    email: req.user.email,
+    name: req.user.name,
+    lastname: req.user.lastname,
+    role: req.user.role,
+    image: req.user.image
   })
 })
 
